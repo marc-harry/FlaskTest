@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {% if title %}
         <title>{{ title }} - Python Site</title>
         {% else %}
@@ -8,23 +12,42 @@
         {% endif %}
     </head>
     <body>
-        <div>Python Site:
-            <a href="{{ url_for('index') }}">Home</a>
-            {% if g.user.is_authenticated %}
-            | <a href="{{ url_for('user', nickname=g.user.nickname) }}">Your Profile</a>
-            | <a href="{{ url_for('logout') }}">Logout</a>
+        <nav class="navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{{ url_for('index') }}">Python Site</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        {% if g.user.is_authenticated %}
+                        <li><a href="{{ url_for('user', nickname=g.user.nickname) }}">Your Profile</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <br />
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }} </li>
+            {% endfor %}
+            </ul>
             {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
         </div>
-        <hr>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-        {% for message in messages %}
-            <li>{{ message }} </li>
-        {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
     </body>
 </html>
