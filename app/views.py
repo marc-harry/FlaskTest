@@ -2,30 +2,30 @@ from flask import render_template, flash, url_for, redirect, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db
 from datetime import datetime
-from .forms import LoginForm, EditForm
+from .forms import LoginForm, EditForm, PostForm
 from .OAuth import GitHubSignIn
 import json
-from .models import User
+from .models import User, Post
+from config import POSTS_PER_PAGE
 
 github = GitHubSignIn().service
 
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
+@app.route('/index/<int:page>', methods=['GET', 'POST'])
 @login_required
-def index():
-    user = g.user
-    posts = [
-        {
-            'author': {'nickname': 'Tester'},
-            'body': 'Lovely day'
-        },
-        {
-            'author': {'nickname': 'User123'},
-            'body': 'Not so lovely day'
-        }
-    ]
-    return render_template('index.html', user=user, posts=posts)
+def index(page=1):
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.post.data, timestamp=datetime.utcnow(), author=g.user)
+        db.session.add(post)
+        db.session.commit()
+        flash("Your post is added!")
+        return redirect(url_for('index'))
+    posts = g.user.posts.order_by(Post.timestamp.desc()).paginate(page, POSTS_PER_PAGE, False)
+
+    return render_template('index.html', title='Home', form=form, posts=posts)
 
 
 @app.route('/login', methods=['GET', 'POST'])

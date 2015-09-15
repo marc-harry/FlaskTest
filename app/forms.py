@@ -5,9 +5,6 @@ from app.models import User
 
 
 class LoginForm(Form):
-    def generate_csrf_token(self, csrf_context):
-        pass
-
     openid = StringField('openid')
     remember_me = BooleanField('remember_me', default=False)
 
@@ -30,3 +27,7 @@ class EditForm(Form):
             self.nickname.errors.append('This nickname is already in use. Please choose another one.')
             return False
         return True
+
+
+class PostForm(Form):
+    post = StringField('post', validators=[DataRequired()])
